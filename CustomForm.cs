@@ -20,6 +20,7 @@ namespace WordPad
 
         static string sEtalon = "";  // строка для хранения исходного содержимого загруженного файла
         static bool isChanged = false;  // изменился ли текст
+        static bool isFirstSave = true;  // первый ли раз сохранили файл
 
         // переменные для richTextBox1.SelectionFont
         static int size = 8;
@@ -78,6 +79,7 @@ namespace WordPad
             try
             {
                 richTextBox.LoadFile(files[0]);
+                saveFileName = files[0];
             }
             catch (ArgumentException)
             {
@@ -98,6 +100,7 @@ namespace WordPad
             }
             sEtalon = richTextBox.Text;
             isChanged = false;
+            isFirstSave = true;
             UpdateFormText();
         }
 
@@ -123,6 +126,7 @@ namespace WordPad
         // сохранение файла
         private void SaveFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Text = saveFileName;
             if (isChanged)  // если файл изменился
             {
                 bool isSave = true;
@@ -134,11 +138,19 @@ namespace WordPad
                 }
                 else
                 {
-                    if (MessageBox.Show("Данные будут изменены\nВы согласны?", "Message", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                    if (isFirstSave)
+                    {
+                        if (MessageBox.Show("Данные будут изменены\nВы согласны?", "Message", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        {
+                            richTextBox.SaveFile(saveFileName);
+                            isFirstSave = false;
+                        }
+                        else isSave = false;
+                    }
+                    else
                     {
                         richTextBox.SaveFile(saveFileName);
                     }
-                    else isSave = false;
                 }
 
                 if (isSave)
@@ -158,6 +170,7 @@ namespace WordPad
                 richTextBox.SaveFile(saveFileName);
 
                 isChanged = false;
+                isFirstSave = true;
                 UpdateFormText();
             }
         }
@@ -182,6 +195,7 @@ namespace WordPad
                 }
                 sEtalon = richTextBox.Text;
                 isChanged = false;
+                isFirstSave = true;
                 UpdateFormText();
             }
         }
