@@ -10,6 +10,13 @@
 *.userosscache
 *.sln.docstates
 
+Properties
+Resources
+CustomForm.resx
+SearchForm.resx
+ReplaceForm.resx
+itextsharp.dll
+
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
