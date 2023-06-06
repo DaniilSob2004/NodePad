@@ -43,7 +43,7 @@ namespace WordPad
 
         SearchForm sf = new SearchForm();
         ReplaceForm rf = new ReplaceForm();
-        OpenFileDialog ofdParserPDF;
+        OpenFileDialog ofdParserPDF = new OpenFileDialog();
 
 
         public CustomForm()
@@ -81,16 +81,24 @@ namespace WordPad
             }
             catch (ArgumentException)
             {
-                using (var fs = new FileStream(files[0], FileMode.Open, FileAccess.Read))
-                using (var sr = new StreamReader(fs))
+                if (Path.GetExtension(files[0]).Equals(".txt"))  // txt
                 {
-                    richTextBox.Text = sr.ReadToEnd();
+                    using (var fs = new FileStream(files[0], FileMode.Open, FileAccess.Read))
+                    using (var sr = new StreamReader(fs))
+                    {
+                        richTextBox.Text = sr.ReadToEnd();
+                    }
+                    saveFileName = files[0];
+                }
+                else  // pdf
+                {
+                    ofdParserPDF.FileName = files[0];
+                    backgroundWorker1.RunWorkerAsync();  // запускаем другой поток
                 }
             }
             sEtalon = richTextBox.Text;
             isChanged = false;
             UpdateFormText();
-            saveFileName = files[0];
         }
 
         private void RichTextBox1_DragEnter(object sender, DragEventArgs e)
@@ -101,7 +109,7 @@ namespace WordPad
                 if (files.Length == 1)
                 {
                     string fileExtension = Path.GetExtension(files[0]);
-                    if (fileExtension.Equals(".txt", StringComparison.OrdinalIgnoreCase))
+                    if (fileExtension.Equals(".txt") || fileExtension.Equals(".pdf"))
                     {
                         e.Effect = DragDropEffects.Copy;
                         return;
@@ -643,7 +651,7 @@ namespace WordPad
         // экстрактор pdf файлов
         private void ToolStripButtonPDF_Click(object sender, EventArgs e)
         {
-            ofdParserPDF = new OpenFileDialog();
+            //ofdParserPDF = new OpenFileDialog();
             ofdParserPDF.InitialDirectory = Environment.SpecialFolder.Desktop.ToString();
             ofdParserPDF.Filter = "pdf files|*.pdf";
             ofdParserPDF.FilterIndex = 1;
